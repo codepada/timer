@@ -64,6 +64,7 @@
     </label>
     <button onclick="startTimer()">เริ่ม</button>
     <button onclick="resetTimer()">รีเซ็ต</button>
+     <button onclick="goFullscreen()">เต็มจอ</button>
   </div>
 
   <script>
@@ -110,6 +111,16 @@
       }, 1000);
     }
 
+    function goFullscreen() {
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen();
+  } else if (document.documentElement.webkitRequestFullscreen) {
+    document.documentElement.webkitRequestFullscreen(); // สำหรับ Safari
+  } else if (document.documentElement.msRequestFullscreen) {
+    document.documentElement.msRequestFullscreen(); // สำหรับ IE11
+  }
+}
+    
     function resetTimer() {
       clearInterval(countdown);
       clearInterval(blinking);
