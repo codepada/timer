@@ -55,10 +55,10 @@
   <div class="controls">
     <div>
       <label for="minuteSelect">นาที:</label>
-      <select id="minuteSelect"></select>
+      <select id="minuteSelect" onchange="updateDisplayFromSelects()"></select>
 
       <label for="secondSelect">วินาที:</label>
-      <select id="secondSelect"></select>
+      <select id="secondSelect" onchange="updateDisplayFromSelects()"></select>
     </div>
 
     <div>
@@ -119,6 +119,12 @@
         optSec.textContent = i;
         secondSelect.appendChild(optSec);
       }
+
+      // Default to 0:00
+      minuteSelect.value = 0;
+      secondSelect.value = 0;
+
+      updateDisplayFromSelects(); // Update display immediately after selecting time
     }
 
     function startTimer() {
@@ -160,14 +166,18 @@
       }
     }
 
-    function resetTimer() {
-      clearInterval(countdown);
-      clearInterval(blinking);
-      document.body.style.background = '#000';
-      timeLeft = 0;
-      updateDisplay(0);
-      paused = false;
-    }
+      function resetTimer() {
+        clearInterval(countdown);
+        clearInterval(blinking);
+        document.body.style.background = '#000';
+
+        const mins = parseInt(document.getElementById('minuteSelect').value);
+        const secs = parseInt(document.getElementById('secondSelect').value);
+        timeLeft = (mins * 60 + secs) * 100;
+
+        updateDisplay(timeLeft);
+        paused = false;
+      }
 
     function updateDisplay(time) {
       const totalSeconds = Math.floor(time / 100);
@@ -181,6 +191,14 @@
         String(ms).padStart(2, '0');
 
       resizeText(); // ปรับขนาดตามผลลัพธ์ใหม่
+    }
+
+    function updateDisplayFromSelects() {
+      const mins = parseInt(document.getElementById('minuteSelect').value);
+      const secs = parseInt(document.getElementById('secondSelect').value);
+
+      // Update the display immediately based on selected time
+      updateDisplay((mins * 60 + secs) * 100);
     }
 
     function startBlinking() {
