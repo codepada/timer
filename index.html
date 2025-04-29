@@ -63,6 +63,7 @@
       <select id="secondSelect"></select>
     </label>
     <button onclick="startTimer()">เริ่ม</button>
+    <button onclick="pauseTimer()">หยุด</button>
     <button onclick="resetTimer()">รีเซ็ต</button>
      <button onclick="goFullscreen()">เต็มจอ</button>
   </div>
@@ -110,7 +111,9 @@
         }
       }, 1000);
     }
-
+  function pauseTimer() {
+  clearInterval(countdown);
+}
     function goFullscreen() {
   if (document.documentElement.requestFullscreen) {
     document.documentElement.requestFullscreen();
