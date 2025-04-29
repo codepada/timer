@@ -101,15 +101,15 @@
       updateDisplay(timeLeft);
 
       countdown = setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) {
-          clearInterval(countdown);
-          updateDisplay(0);
-          startBlinking();
-        } else {
-          updateDisplay(timeLeft);
-        }
-      }, 1000);
+  timeLeft -= 0.01;
+  if (timeLeft <= 0) {
+    clearInterval(countdown);
+    updateDisplay(0);
+    startBlinking();
+  } else {
+    updateDisplay(timeLeft);
+  }
+}, 10);
     }
   function pauseTimer() {
   clearInterval(countdown);
@@ -133,11 +133,16 @@
     }
 
     function updateDisplay(time) {
-      const mins = Math.floor(time / 60);
-      const secs = time % 60;
-      document.getElementById('timer').textContent =
-        String(mins).padStart(2, '0') + ":" + String(secs).padStart(2, '0');
-    }
+  time = Math.max(0, time); // ไม่ให้ติดลบ
+  const mins = Math.floor(time / 60);
+  const secs = Math.floor(time % 60);
+  const fraction = Math.floor((time % 1) * 100); // เศษวินาที 2 หลัก
+
+  document.getElementById('timer').textContent =
+    String(mins).padStart(2, '0') + ":" +
+    String(secs).padStart(2, '0') + "." +
+    String(fraction).padStart(2, '0');
+}
 
     function startBlinking() {
       blinking = setInterval(() => {
