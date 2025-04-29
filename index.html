@@ -2,78 +2,98 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>นับเวลาถอยหลัง</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
-      width: 100%;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
+      background: black;
     }
 
-    #timerArea {
-      flex: 5;
+    #container {
       display: flex;
       justify-content: center;
       align-items: center;
-    }
-
-    #timer {
-      font-size: clamp(50px, 60vmin, 600px);
-      line-height: 1;
-      font-family: monospace;
-      width: 8ch;  /* ความกว้างพอดีกับ 8 ตัวอักษร */
-      text-align: center;
+      height: 70vh;
+      width: 100vw;
       overflow: hidden;
     }
 
+    #timer {
+      font-family: monospace;
+      color: white;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
     .controls {
-      flex: 1;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      gap: 15px;
-      flex-wrap: wrap;
+      margin-top: 10px;
     }
 
     select, button {
       font-size: 2.5vh;
-      padding: 10px 20px;
+      margin: 8px;
+      padding: 6px 14px;
     }
 
     label {
-      display: inline-block;
-      margin: 0 5px;
+      margin-right: 4px;
+      color: white;
     }
   </style>
 </head>
 <body>
-
-  <div id="timerArea">
-    <div id="timer">00:00</div>
+  <div id="container">
+    <div id="timer">00:00:00</div>
   </div>
 
   <div class="controls">
-    <label>นาที:
+    <div>
+      <label for="minuteSelect">นาที:</label>
       <select id="minuteSelect"></select>
-    </label>
-    <label>วินาที:
+
+      <label for="secondSelect">วินาที:</label>
       <select id="secondSelect"></select>
-    </label>
-    <button onclick="startTimer()">เริ่ม</button>
-    <button onclick="pauseTimer()">หยุด</button>
-    <button onclick="resetTimer()">รีเซ็ต</button>
-     <button onclick="goFullscreen()">เต็มจอ</button>
+    </div>
+
+    <div>
+      <button onclick="startTimer()">เริ่ม</button>
+      <button onclick="pauseTimer()">หยุด</button>
+      <button onclick="resetTimer()">รีเซ็ต</button>
+      <button onclick="goFullscreen()">เต็มจอ</button>
+    </div>
   </div>
 
   <script>
+    function resizeText() {
+      const container = document.getElementById("container");
+      const timer = document.getElementById("timer");
+
+      let fontSize = 10;
+      timer.style.fontSize = fontSize + "px";
+
+      while (
+        timer.offsetWidth < container.offsetWidth * 0.95 &&
+        timer.offsetHeight < container.offsetHeight * 0.85
+      ) {
+        fontSize++;
+        timer.style.fontSize = fontSize + "px";
+      }
+
+      timer.style.fontSize = (fontSize - 1) + "px";
+    }
+
+    window.addEventListener("resize", resizeText);
+    window.addEventListener("load", resizeText);
+
     let countdown;
     let timeLeft = 0;
+    let paused = false;
     let blinking;
 
     function populateSelects() {
@@ -93,59 +113,66 @@
     }
 
     function startTimer() {
-      const mins = parseInt(document.getElementById('minuteSelect').value);
-      const secs = parseInt(document.getElementById('secondSelect').value);
-      timeLeft = (mins * 60) + secs;
+      if (!paused) {
+        const mins = parseInt(document.getElementById('minuteSelect').value);
+        const secs = parseInt(document.getElementById('secondSelect').value);
+        timeLeft = (mins * 60 + secs) * 100;
+      }
 
       clearInterval(countdown);
       clearInterval(blinking);
       document.body.style.background = '#000';
 
-      updateDisplay(timeLeft);
-
       countdown = setInterval(() => {
-  timeLeft -= 0.01;
-  if (timeLeft <= 0) {
-    clearInterval(countdown);
-    updateDisplay(0);
-    startBlinking();
-  } else {
-    updateDisplay(timeLeft);
-  }
-}, 10);
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          updateDisplay(0);
+          startBlinking();
+        } else {
+          timeLeft--;
+          updateDisplay(timeLeft);
+        }
+      }, 10);
+      paused = false;
     }
-  function pauseTimer() {
-  clearInterval(countdown);
-}
+
+    function pauseTimer() {
+      clearInterval(countdown);
+      paused = true;
+    }
+
     function goFullscreen() {
-  if (document.documentElement.requestFullscreen) {
-    document.documentElement.requestFullscreen();
-  } else if (document.documentElement.webkitRequestFullscreen) {
-    document.documentElement.webkitRequestFullscreen(); // สำหรับ Safari
-  } else if (document.documentElement.msRequestFullscreen) {
-    document.documentElement.msRequestFullscreen(); // สำหรับ IE11
-  }
-}
-    
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) {
+        document.documentElement.msRequestFullscreen();
+      }
+    }
+
     function resetTimer() {
       clearInterval(countdown);
       clearInterval(blinking);
       document.body.style.background = '#000';
       timeLeft = 0;
-      document.getElementById('timer').textContent = "00:00";
+      updateDisplay(0);
+      paused = false;
     }
 
     function updateDisplay(time) {
-  time = Math.max(0, time); // ไม่ให้ติดลบ
-  const mins = Math.floor(time / 60);
-  const secs = Math.floor(time % 60);
-  const fraction = Math.floor((time % 1) * 100); // เศษวินาที 2 หลัก
+      const totalSeconds = Math.floor(time / 100);
+      const ms = time % 100;
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
 
-  document.getElementById('timer').textContent =
-    String(mins).padStart(2, '0') + ":" +
-    String(secs).padStart(2, '0') + "." +
-    String(fraction).padStart(2, '0');
-}
+      document.getElementById('timer').textContent =
+        String(mins).padStart(2, '0') + ":" +
+        String(secs).padStart(2, '0') + ":" +
+        String(ms).padStart(2, '0');
+
+      resizeText(); // ปรับขนาดตามผลลัพธ์ใหม่
+    }
 
     function startBlinking() {
       blinking = setInterval(() => {
@@ -156,6 +183,5 @@
 
     populateSelects();
   </script>
-
 </body>
 </html>
