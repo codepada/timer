@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>นับเวลาถอยหลัง</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: background 0.3s;
+    }
+    #timer {
+        font-size: clamp(50px, 80vw, 600px);
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    select, button {
+      font-size: 3vh;
+      margin: 10px;
+      padding: 5px 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="timer">00:00</div>
+
+  <div class="controls">
+    <div>
+      <label for="minuteSelect">นาที:</label>
+      <select id="minuteSelect"></select>
+
+      <label for="secondSelect">วินาที:</label>
+      <select id="secondSelect"></select>
+    </div>
+
+    <div>
+      <button onclick="startTimer()">เริ่ม</button>
+      <button onclick="resetTimer()">รีเซ็ต</button>
+    </div>
+  </div>
+
+  <script>
+    let countdown;
+    let timeLeft = 0;
+    let blinking;
+
+    function populateSelects() {
+      const minuteSelect = document.getElementById('minuteSelect');
+      const secondSelect = document.getElementById('secondSelect');
+      for (let i = 0; i <= 59; i++) {
+        const optionMin = document.createElement('option');
+        optionMin.value = i;
+        optionMin.textContent = i;
+        minuteSelect.appendChild(optionMin);
+
+        const optionSec = document.createElement('option');
+        optionSec.value = i;
+        optionSec.textContent = i;
+        secondSelect.appendChild(optionSec);
+      }
+    }
+
+    function startTimer() {
+      const mins = parseInt(document.getElementById('minuteSelect').value);
+      const secs = parseInt(document.getElementById('secondSelect').value);
+      timeLeft = (mins * 60) + secs;
+
+      clearInterval(countdown);
+      clearInterval(blinking);
+      document.body.style.background = '#000';
+
+      updateDisplay(timeLeft);
+
+      countdown = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          updateDisplay(0);
+          startBlinking();
+        } else {
+          updateDisplay(timeLeft);
+        }
+      }, 1000);
+    }
+
+    function resetTimer() {
+      clearInterval(countdown);
+      clearInterval(blinking);
+      document.body.style.background = '#000';
+      timeLeft = 0;
+      document.getElementById('timer').textContent = "00:00";
+    }
+
+    function updateDisplay(time) {
+      const mins = Math.floor(time / 60);
+      const secs = time % 60;
+      document.getElementById('timer').textContent =
+        String(mins).padStart(2, '0') + ":" + String(secs).padStart(2, '0');
+    }
+
+    function startBlinking() {
+      blinking = setInterval(() => {
+        document.body.style.background =
+          document.body.style.background === 'red' ? '#000' : 'red';
+      }, 300);
+    }
+
+    populateSelects();
+  </script>
+
+</body>
+</html>
