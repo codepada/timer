@@ -11,7 +11,13 @@
       height: 100%;
       background: black;
     }
-
+      button {
+        background: transparent;
+        border: 0px solid white;
+        border-radius: 0;
+        color: white;
+        cursor: pointer;
+      }
     #container {
       display: flex;
       justify-content: center;
@@ -62,10 +68,10 @@
     </div>
 
     <div>
-        <button id="startBtn" onclick="startTimer()">เริ่ม</button>
-        <button id="pauseBtn" onclick="pauseTimer()">หยุด</button>
-      <button onclick="resetTimer()">รีเซ็ต</button>
-      <button onclick="goFullscreen()">เต็มจอ</button>
+        <button id="startBtn" onclick="startTimer()">Start</button>
+        <button id="pauseBtn" onclick="pauseTimer()">Stop</button>
+      <button onclick="resetTimer()">Reset</button>
+      <button onclick="goFullscreen()">[  ]</button>
     </div>
   </div>
 
@@ -75,11 +81,12 @@
         const timer = document.getElementById("timer");
         const startBtn = document.getElementById("startBtn");
         const pauseBtn = document.getElementById("pauseBtn");
+        const resetBtn = document.querySelector("button[onclick='resetTimer()']");
+        const FullScreenBtn = document.querySelector("button[onclick='goFullscreen()']");
 
-        let fontSize = 10; // เริ่มจากเล็กก่อน
+        let fontSize = 10;
         timer.style.fontSize = fontSize + "px";
 
-        // ขยายจนกว่าจะล้น
         while (
           timer.offsetWidth < container.offsetWidth * 0.95 &&
           timer.offsetHeight < container.offsetHeight * 0.85
@@ -88,13 +95,14 @@
           timer.style.fontSize = fontSize + "px";
         }
 
-        fontSize--; // ลดกลับหนึ่งขั้นถ้าล้น
+        fontSize--;
         timer.style.fontSize = fontSize + "px";
 
-        // ปรับขนาดฟอนต์ของปุ่มเป็น 1 ใน 3 ของฟอนต์ของ timer
-        const buttonFontSize = fontSize / 3;  // ลดขนาดลง 1 ใน 3
+        const buttonFontSize = fontSize / 3;
         startBtn.style.fontSize = buttonFontSize + "px";
         pauseBtn.style.fontSize = buttonFontSize + "px";
+        resetBtn.style.fontSize = buttonFontSize  + "px";
+        FullScreenBtn.style.fontSize = buttonFontSize  + "px";
       }
 
     window.addEventListener("resize", resizeText);
