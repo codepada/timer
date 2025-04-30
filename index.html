@@ -47,10 +47,11 @@
       padding: 6px 14px;
     }
 
-    label {
-      margin-right: 4px;
-      color: white;
-    }
+      label,
+        #minuteContainer,
+        #secondContainer {
+          color: white;
+        }
   </style>
 </head>
 <body>
@@ -60,11 +61,19 @@
 
   <div class="controls">
     <div>
-      <label for="minuteSelect">นาที:</label>
-      <select id="minuteSelect" onchange="updateDisplayFromSelects()"></select>
+        <span id="minuteContainer">
+          นาที <select id="minuteSelect">
+            <option value="0">00</option>
+            ...
+          </select>
+        </span>
 
-      <label for="secondSelect">วินาที:</label>
-      <select id="secondSelect" onchange="updateDisplayFromSelects()"></select>
+        <span id="secondContainer">
+          วินาที <select id="secondSelect">
+            <option value="0">00</option>
+            ...
+          </select>
+        </span>
     </div>
 
     <div>
@@ -135,44 +144,64 @@
       updateDisplayFromSelects(); // Update display immediately after selecting time
     }
 
-    function startTimer() {
-      if (!paused) {
-        const mins = parseInt(document.getElementById('minuteSelect').value);
-        const secs = parseInt(document.getElementById('secondSelect').value);
-        timeLeft = (mins * 60 + secs) * 100;
-      }
-
-      clearInterval(countdown);
-      clearInterval(blinking);
-      document.body.style.background = '#000';
-
-      countdown = setInterval(() => {
-        if (timeLeft <= 0) {
-          clearInterval(countdown);
-          updateDisplay(0);
-          startBlinking();
-        } else {
-          timeLeft--;
-          updateDisplay(timeLeft);
+      function startTimer() {
+        if (!paused) {
+          const mins = parseInt(document.getElementById('minuteSelect').value);
+          const secs = parseInt(document.getElementById('secondSelect').value);
+          timeLeft = (mins * 60 + secs) * 100;
         }
-      }, 10);
-      paused = false;
-    }
+
+        clearInterval(countdown);
+        clearInterval(blinking);
+        document.body.style.background = '#000';
+
+        // ⬇ ซ่อนตัวเลือกเวลา
+        document.getElementById('minuteSelect').style.display = 'none';
+        document.getElementById('secondSelect').style.display = 'none';
+        document.getElementById('minuteContainer').style.display = 'none';
+        document.getElementById('secondContainer').style.display = 'none';
+
+        countdown = setInterval(() => {
+          if (timeLeft <= 0) {
+            clearInterval(countdown);
+            updateDisplay(0);
+            startBlinking();
+          } else {
+            timeLeft--;
+            updateDisplay(timeLeft);
+          }
+        }, 10);
+        paused = false;
+      }
 
     function pauseTimer() {
       clearInterval(countdown);
       paused = true;
     }
 
-    function goFullscreen() {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        document.documentElement.webkitRequestFullscreen();
-      } else if (document.documentElement.msRequestFullscreen) {
-        document.documentElement.msRequestFullscreen();
+      function goFullscreen() {
+        if (!document.fullscreenElement &&
+            !document.webkitFullscreenElement &&
+            !document.msFullscreenElement) {
+          // ยังไม่อยู่ใน fullscreen → เข้า fullscreen
+          if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+          } else if (document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen();
+          } else if (document.documentElement.msRequestFullscreen) {
+            document.documentElement.msRequestFullscreen();
+          }
+        } else {
+          // อยู่ใน fullscreen → ออก fullscreen
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+        }
       }
-    }
 
       function resetTimer() {
         clearInterval(countdown);
@@ -185,6 +214,12 @@
 
         updateDisplay(timeLeft);
         paused = false;
+
+        // ⬇ แสดงตัวเลือกเวลาอีกครั้ง
+        document.getElementById('minuteSelect').style.display = 'inline-block';
+        document.getElementById('secondSelect').style.display = 'inline-block';
+        document.getElementById('minuteContainer').style.display = 'inline-block';
+        document.getElementById('secondContainer').style.display = 'inline-block';
       }
 
     function updateDisplay(time) {
